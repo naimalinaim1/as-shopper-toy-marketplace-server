@@ -47,6 +47,22 @@ async function run() {
         query = { subCategory };
       }
 
+      if (!sellerEmail && !id && subCategory) {
+        query = { subCategory };
+      }
+
+      const result = await toyCollection.find(query).toArray();
+      res.send(result);
+    });
+
+    app.get("/searchToy", async (req, res) => {
+      const toyName = req.query?.searchToy;
+      const query = {
+        name: {
+          $regex: toyName,
+          $options: "i", // "i" for case-insensitive search
+        },
+      };
       const result = await toyCollection.find(query).toArray();
       res.send(result);
     });
