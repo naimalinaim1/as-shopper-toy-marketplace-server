@@ -57,14 +57,42 @@ async function run() {
 
     app.get("/searchToy", async (req, res) => {
       const toyName = req.query?.searchToy;
-      const query = {
-        name: {
-          $regex: toyName,
-          $options: "i", // "i" for case-insensitive search
-        },
-      };
-      const result = await toyCollection.find(query).toArray();
+      const page = parseInt(req.query?.page);
+      const size = parseInt(req.query?.size);
+      const skip = page * size;
+
+      let query = {};
+      if (toyName) {
+        query = {
+          name: {
+            $regex: toyName,
+            $options: "i", // "i" for case-insensitive search
+          },
+        };
+      }
+
+      const result = await toyCollection
+        .find(query)
+        .skip(skip)
+        .limit(size)
+        .toArray();
       res.send(result);
+    });
+
+    // get total toys length
+    app.get("/totalToys", async (req, res) => {
+      const toyName = req.query?.searchToy;
+      let query = {};
+      if (toyName) {
+        query = {
+          name: {
+            $regex: toyName,
+            $options: "i", // "i" for case-insensitive search
+          },
+        };
+      }
+      const totalToy = await toyCollection.countDocuments(query);
+      res.send({ totalToy });
     });
 
     // create a toys
