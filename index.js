@@ -36,8 +36,10 @@ async function run() {
       const id = req.query?.id;
       const subCategory = req.query?.subCategory;
       let query = {};
+      let sorting = {};
       if (sellerEmail) {
         query = { sellerEmail };
+        sorting = { price: 1 };
       }
       if (!sellerEmail && id) {
         query = { _id: new ObjectId(id) };
@@ -51,8 +53,23 @@ async function run() {
         query = { subCategory };
       }
 
-      const result = await toyCollection.find(query).toArray();
+      const result = await toyCollection.find(query).sort(sorting).toArray();
       res.send(result);
+    });
+
+    // sort by price
+    app.get("/sortByPrice", async (req, res) => {
+      const sellerEmail = req.query?.email;
+      const sort = parseInt(req.query?.sort);
+
+      const result = await toyCollection.find({ sellerEmail }).toArray();
+      let sortby;
+      if (sort == 1) {
+        sortby = result.sort((a, b) => a.price - b.price);
+      } else {
+        sortby = result.sort((a, b) => b.price - a.price);
+      }
+      res.send(sortby);
     });
 
     app.get("/searchToy", async (req, res) => {
