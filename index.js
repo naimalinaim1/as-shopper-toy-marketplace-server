@@ -1,8 +1,9 @@
-var express = require("express");
-var cors = require("cors");
+const express = require("express");
+const cors = require("cors");
 const { MongoClient, ServerApiVersion, ObjectId } = require("mongodb");
 require("dotenv").config();
-var app = express();
+const jwt = require("jsonwebtoken");
+const app = express();
 const port = 3000;
 
 // middleware
@@ -11,6 +12,15 @@ app.use(express.json());
 
 app.get("/", (req, res) => {
   res.send("Toy Car sport server is running!");
+});
+
+// jwt
+app.post("/jwt", (req, res) => {
+  const email = req.body;
+  const token = jwt.sign(email, process.env.Jwt_ACCESS_SECRET, {
+    expiresIn: "1d",
+  });
+  res.send({ token });
 });
 
 const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@cluster0.ybzmsy1.mongodb.net/?retryWrites=true&w=majority`;
